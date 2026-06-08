@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">SA Public Defender | Kyntra OS</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+        :root {
+            /* Default Public Defender Theme (Purple) */
+            --bg-color: #05020a;
+            --panel-bg: rgba(15, 10, 26, 0.9);
+            --text-main: #e0d0ec;
+            --text-muted: #6b4f85;
+            --accent: #b066ff; 
+            --accent-glow: rgba(176, 102, 255, 0.4);
+            --border: #4a2653;
+            --success: #00ff41;
+            --error: #ff2a2a;
+            --grid-color: rgba(74, 38, 83, 0.15);
+        }
+
+        /* WEAVER LEGAL GROUP THEME (Gold/Black) */
+        body.weaver-theme {
+            --bg-color: #070707;
+            --panel-bg: rgba(15, 15, 15, 0.92);
+            --text-main: #f0f0f0;
+            --text-muted: #887a5a;
+            --accent: #d4af37; /* Metallic Gold */
+            --accent-glow: rgba(212, 175, 55, 0.3);
+            --border: #5a4a18;
+            --grid-color: rgba(212, 175, 55, 0.05);
+            /* Weaver Wallpaper Background */
+            background-image: 
+                linear-gradient(rgba(5, 5, 8, 0.88), rgba(5, 5, 8, 0.88)),
+                url('Weaver Wallpaper.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        /* --- CUSTOM SCROLLBARS --- */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #000; border-left: 1px solid var(--border); }
+        ::-webkit-scrollbar-thumb { background: var(--border); }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+        body, html {
+            margin: 0; padding: 0; height: 100%;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Share Tech Mono', monospace;
+            overflow: hidden;
+            background-image: 
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px),
+                radial-gradient(circle at center, #0d0a14 0%, #000000 100%);
+            background-size: 30px 30px, 30px 30px, 100% 100%;
+            transition: all 0.5s ease;
+        }
+
+        /* --- ADVANCED CRT EFFECT --- */
+        .crt::before {
+            content: " "; display: block; position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            z-index: 999; background-size: 100% 3px, 3px 100%; pointer-events: none;
+        }
+
+        /* --- WEAVER LOGO STYLING --- */
+        .weaver-logo-container {
+            display: none; /* Hidden by default */
+            text-align: center;
+            padding: 20px 0 0 0;
+        }
+        body.weaver-theme .weaver-logo-container {
+            display: block;
+        }
+        .weaver-logo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 2px solid var(--accent);
+            box-shadow: 0 0 20px var(--accent-glow);
+            object-fit: cover;
+        }
+
+        /* --- AUTH SCREEN --- */
+        #auth-screen, #boot-screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #000; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 100;
+            transition: opacity 0.8s ease;
+        }
+
+        .auth-box {
+            border: 1px solid var(--accent); padding: 40px; width: 380px;
+            background: var(--panel-bg);
+            box-shadow: 0 0 40px var(--accent-glow);
+            text-align: center; position: relative;
+        }
+        .auth-box::after {
+            content: ''; position: absolute; top: -5px; left: -5px; right: -5px; bottom: -5px;
+            border: 1px solid var(--accent); opacity: 0.3; pointer-events: none;
+        }
+
+        .auth-box h1 { color: var(--accent); letter-spacing: 3px; text-shadow: 0 0 15px var(--accent-glow); margin-top: 0; }
+        .auth-box p { color: var(--text-muted); margin-bottom: 25px; font-size: 0.9rem; }
+
+        .auth-input {
+            width: 100%; padding: 12px; margin-bottom: 15px;
+            background: #000; border: 1px solid var(--border);
+            color: var(--accent); font-family: inherit; font-size: 1.1rem;
+            box-sizing: border-box; text-align: center;
+        }
+        .auth-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
+
+        .checkbox-container { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; text-align: left; color: var(--text-main); font-size: 0.9rem; cursor: pointer; }
+        .checkbox-container input { cursor: pointer; accent-color: var(--accent); }
+
+        .btn {
+            background-color: var(--accent); color: #000;
+            border: none; padding: 10px 20px; font-family: inherit;
+            font-weight: bold; cursor: pointer; text-transform: uppercase;
+            transition: all 0.2s; font-size: 0.95rem; border-radius: 2px;
+        }
+        .btn:hover { background-color: #fff; box-shadow: 0 0 15px var(--accent-glow); }
+        .btn-outline { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+        .btn-outline:hover { background: var(--accent-glow); }
+        .btn-danger { background-color: var(--error); color: #fff; }
+        .btn-danger:hover { background-color: #cc0000; box-shadow: 0 0 15px rgba(255,0,0,0.4); }
+
+        .auth-toggle { margin-top: 20px; font-size: 0.8rem; color: var(--text-muted); cursor: pointer; text-decoration: underline; }
+        .auth-toggle:hover { color: var(--accent); }
+
+        #boot-screen { display: none; justify-content: flex-start; align-items: flex-start; padding: 40px; color: var(--success); font-size: 1.1rem; z-index: 90; }
+
+        /* --- MAIN UI DESKTOP --- */
+        #main-ui { display: none; height: 100%; opacity: 0; animation: fadeIn 1s forwards; }
+        @keyframes fadeIn { to { opacity: 1; } }
+
+        .top-bar {
+            height: 45px; background-color: #020202; border-bottom: 1px solid var(--accent);
+            display: flex; justify-content: space-between; align-items: center; padding: 0 25px;
+            color: var(--accent); font-weight: bold; font-size: 1.1rem; box-shadow: 0 2px 10px rgba(0,0,0,0.8);
+        }
+
+        .layout { display: flex; height: calc(100% - 45px); }
+
+        .sidebar { width: 280px; background-color: var(--panel-bg); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
+        
+        .sys-stats { padding: 15px 20px; border-bottom: 1px solid var(--border); font-size: 0.85rem; color: var(--text-muted); }
+        .sys-stats div { margin-bottom: 8px; }
+        .sys-stats span { color: var(--success); float: right; }
+
+        .nav-btn {
+            background: none; border: none; border-bottom: 1px solid var(--border);
+            color: var(--text-main); text-align: left; padding: 18px 25px;
+            font-family: inherit; font-size: 0.95rem; cursor: pointer; transition: 0.2s; text-transform: uppercase;
+        }
+        .nav-btn:hover, .nav-btn.active { background-color: var(--accent-glow); color: var(--accent); border-left: 4px solid var(--accent); }
+        .nav-bottom { margin-top: auto; border-top: 1px solid var(--border); border-bottom: none; color: var(--error); }
+        .nav-bottom:hover { background-color: rgba(255, 42, 42, 0.1); color: var(--error); border-left: 4px solid var(--error); }
+        .nav-upgrade { background-color: rgba(212, 175, 55, 0.1); border-left: 4px solid #d4af37; color: #d4af37; }
+        .nav-upgrade:hover { background-color: rgba(212, 175, 55, 0.2); }
+
+        .workspace { flex-grow: 1; padding: 30px; overflow-y: auto; scroll-behavior: smooth; }
+        
+        .tab-content { display: none; max-width: 1400px; margin: 0 auto; }
+        .tab-content.active { display: block; animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        h1 { border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-top: 0; color: var(--accent); text-shadow: 0 0 8px var(--accent-glow); }
+
+        /* --- FORMS & TABLES --- */
+        .grid-panel { background: var(--panel-bg); border: 1px solid var(--border); padding: 25px; margin-bottom: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .form-group { margin-bottom: 15px; position: relative; }
+        
+        .flex-label { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 6px; }
+        label { color: var(--accent); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .ai-btn { color: var(--accent); font-size: 0.75rem; cursor: pointer; border: 1px solid var(--border); padding: 2px 8px; border-radius: 2px; transition: 0.2s; background: #000; }
+        .ai-btn:hover { background: var(--accent); color: #000; box-shadow: 0 0 8px var(--accent-glow); }
+
+        input[type="text"], input[type="tel"], input[type="password"], input[type="number"], input[type="date"], select, textarea {
+            width: 100%; background-color: #000; border: 1px solid var(--border); color: var(--text-main);
+            padding: 10px; font-family: inherit; box-sizing: border-box; font-size: 0.95rem;
+        }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
+        textarea { resize: vertical; min-height: 80px; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; background: rgba(0,0,0,0.7); font-size: 0.9rem; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { color: var(--accent); text-transform: uppercase; font-size: 0.8rem; background: var(--accent-glow); letter-spacing: 1px; }
+        tr:hover { background-color: rgba(255, 255, 255, 0.05); }
+        
+        .status-closed { opacity: 0.4; transition: opacity 0.3s; }
+        .status-closed:hover { opacity: 0.8; }
+        .btn-editing { background-color: #fff; color: #000; box-shadow: 0 0 15px rgba(255, 255, 255, 0.5); }
+
+        #report-output {
+            margin-top: 20px; padding: 30px; background-color: #000; border: 1px solid var(--accent);
+            white-space: pre-wrap; display: none; color: var(--text-main); font-size: 1rem;
+            box-shadow: inset 0 0 20px var(--accent-glow); font-family: 'Courier New', Courier, monospace;
+        }
+
+        .row-form { display: flex; gap: 15px; align-items: flex-end; margin-bottom: 15px; }
+        .row-form .form-group { margin-bottom: 0; flex: 1; }
+
+        .doc-section { display: none; }
+        .doc-section.active { display: block; animation: fadeIn 0.3s; }
+
+        /* --- LEGAL LIBRARY STYLES --- */
+        .law-container { display: flex; gap: 25px; height: calc(100vh - 180px); }
+        .law-col { flex: 1; display: flex; flex-direction: column; background: var(--panel-bg); border: 1px solid var(--border); }
+        .law-header { padding: 15px; background: var(--accent-glow); border-bottom: 1px solid var(--border); font-weight: bold; color: var(--accent); text-transform: uppercase; text-align: center; letter-spacing: 2px;}
+        .law-scroll { flex: 1; overflow-y: auto; padding: 20px; }
+        
+        .law-category { font-size: 1.1rem; color: #fff; border-bottom: 1px solid var(--border); margin: 25px 0 15px 0; padding-bottom: 5px; font-weight: bold; text-shadow: 0 0 5px rgba(255,255,255,0.3);}
+        .law-category:first-child { margin-top: 0; }
+        
+        .law-card { background: rgba(0,0,0,0.6); border: 1px solid var(--border); padding: 15px; margin-bottom: 15px; transition: 0.2s; }
+        .law-card:hover { border-color: var(--accent); box-shadow: inset 0 0 10px var(--accent-glow); }
+        .law-card h3 { margin: 0 0 10px 0; color: var(--accent); font-size: 1rem; display: flex; justify-content: space-between;}
+        .law-card p { font-size: 0.85rem; color: var(--text-main); line-height: 1.5; margin: 0 0 8px 0; }
+        .law-card p:last-child { margin-bottom: 0; }
+        .case-title { font-weight: bold; color: #fff; text-decoration: underline; text-decoration-color: var(--border); }
+        .quote { color: var(--text-muted); font-style: italic; border-left: 2px solid var(--border); padding-left: 10px; margin-top: 8px; }
+    </style>
+</head>
+<body class="crt">
+
+    <div id="auth-screen">
+        <div class="auth-box" id="login-box">
+            <h1>KYNTRA SECURE</h1>
+            <p>SAN ANDREAS LEGAL DATABASE</p>
+            <input type="text" id="login-user" class="auth-input" placeholder="USERNAME" autocomplete="off">
+            <input type="password" id="login-pass" class="auth-input" placeholder="PASSWORD" onkeydown="if(event.key === 'Enter') attemptAuth('login')">
+            <button class="btn" style="width: 100%; margin-top: 10px;" onclick="attemptAuth('login')">DECRYPT & LOGIN</button>
+            <div class="auth-toggle" onclick="toggleAuthMode()">NEW ATTORNEY? REGISTER CREDENTIALS</div>
+        </div>
+
+        <div class="auth-box" id="register-box" style="display: none;">
+            <h1>DB REGISTRY</h1>
+            <p>CREATE ENCRYPTED PROFILE</p>
+            <input type="text" id="reg-user" class="auth-input" placeholder="NEW USERNAME" autocomplete="off">
+            <input type="password" id="reg-pass" class="auth-input" placeholder="NEW PASSWORD" onkeydown="if(event.key === 'Enter') attemptAuth('register')">
+            
+            <label class="checkbox-container">
+                <input type="checkbox" id="reg-weaver">
+                Register as Member of Weaver Legal Group
+            </label>
+
+            <button class="btn btn-outline" style="width: 100%; margin-top: 10px;" onclick="attemptAuth('register')">INITIALIZE PROFILE</button>
+            <div class="auth-toggle" onclick="toggleAuthMode()">EXISTING USER? RETURN TO LOGIN</div>
+        </div>
+    </div>
+
+    <div id="boot-screen">
+        <div id="boot-text"></div>
+    </div>
+
+    <div id="main-ui">
+        <div class="top-bar">
+            <div id="user-display">USER: AWAITING</div>
+            <div id="sys-title" style="letter-spacing: 3px;">[ KYNTRA OS 1.2 ]</div>
+            <div id="clock">00:00:00</div>
+        </div>
+
+        <div class="layout">
+            <div class="sidebar">
+                
+                <div class="weaver-logo-container">
+                    <img src="Weaver Group Logo.png" alt="Weaver Legal Group" class="weaver-logo" onerror="this.style.display='none'">
+                </div>
+
+                <div class="sys-stats">
+                    <div>DB STATUS <span id="db-stat">ONLINE</span></div>
+                    <div>LOCAL STORAGE <span id="mem-stat">SYNCED</span></div>
+                    <div>UPLINK <span style="color: var(--accent)">ENCRYPTED</span></div>
+                </div>
+                <button class="nav-btn active" onclick="openTab('report-builder')">> Document Gen</button>
+                <button class="nav-btn" onclick="openTab('client-roster')">> Client Roster</button>
+                <button class="nav-btn" onclick="openTab('court-docket')">> Court Docket</button>
+                <button class="nav-btn" onclick="openTab('legal-ref')">> Legal Library</button>
+                
+                <button id="btn-upgrade-firm" class="nav-btn nav-upgrade" style="display:none;" onclick="toggleFirmStatus()">> Upgrade Firm Status</button>
+                
+                <button class="nav-btn nav-bottom" onclick="logout()">TERMINATE SESSION</button>
+            </div>
+
+            <div class="workspace">
+                
+                <div id="report-builder" class="tab-content active">
+                    <h1>Legal Document Drafting</h1>
+                    <div class="grid-panel">
+                        <div class="form-group">
+                            <label>Document Template</label>
+                            <select id="doc-type" onchange="updateFormDisplay(); playSound('click')">
+                                <option value="retainer">Legal Representation & Retainer Agreement</option>
+                                <option value="representation">Letter of Representation (Notice)</option>
+                                <option value="cease">Cease & Desist Demand</option>
+                                <option value="brief">Internal Case Strategy Brief</option>
+                                <option value="subpoena">Subpoena Duces Tecum</option>
+                                <option value="discovery">Motion for Discovery</option>
+                                <option value="civil-rights">42 U.S.C. § 1983 Civil Complaint</option>
+                            </select>
+                        </div>
+                        <div class="row-form">
+                            <div class="form-group">
+                                <label>Client / Plaintiff / Defendant</label>
+                                <input type="text" id="global-defendant" placeholder="e.g. John Doe">
+                            </div>
+                            <div class="form-group">
+                                <label>Case Number / Internal File ID</label>
+                                <input type="text" id="global-case" placeholder="e.g. CR-2026-1042 or CV-2026-050">
+                            </div>
+                        </div>
+                        <br>
+
+                        <div id="sec-retainer" class="doc-section active">
+                            <div class="form-group">
+                                <label>Scope of Representation / Matter</label>
+                                <textarea id="ret-scope" placeholder="Define exactly what matters the firm is handling for this client..."></textarea>
+                            </div>
+                            <div class="row-form">
+                                <div class="form-group">
+                                    <label>Retainer Cost ($)</label>
+                                    <input type="number" id="ret-amount" value="5000">
+                                </div>
+                                <div class="form-group">
+                                    <label>Fee Per Case ($)</label>
+                                    <input type="number" id="ret-case-fee" value="7500">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="sec-representation" class="doc-section">
+                            <div class="form-group"><label>To: (Opposing Counsel, LSPD, DA)</label><input type="text" id="rep-to" placeholder="e.g. LSPD Chief of Police"></div>
+                            <div class="form-group">
+                                <div class="flex-label">
+                                    <label>Demands / Notice Directives</label>
+                                    <span class="ai-btn" onclick="aiEnhance('rep-demands')">✨ AI ENHANCE</span>
+                                </div>
+                                <textarea id="rep-demands" placeholder="e.g. Direct all future communications to our office. Preserve all evidence..."></textarea>
+                            </div>
+                        </div>
+
+                        <div id="sec-cease" class="doc-section">
+                            <div class="form-group"><label>Offending Party</label><input type="text" id="cd-target" placeholder="e.g. Diamond Casino Security"></div>
+                            <div class="form-group">
+                                <div class="flex-label">
+                                    <label>Unlawful / Infringing Conduct</label>
+                                    <span class="ai-btn" onclick="aiEnhance('cd-conduct')">✨ AI ENHANCE</span>
+                                </div>
+                                <textarea id="cd-conduct" placeholder="Describe the harassment, breach, or infringement..."></textarea>
+                            </div>
+                            <div class="form-group"><label>Compliance Deadline</label><input type="date" id="cd-date"></div>
+                        </div>
+
+                        <div id="sec-brief" class="doc-section">
+                            <div class="form-group"><label>Alleged Charges / Claims</label><input type="text" id="brief-charges"></div>
+                            <div class="form-group">
+                                <div class="flex-label">
+                                    <label>Defense Strategy & Work Product (Privileged)</label>
+                                    <span class="ai-btn" onclick="aiEnhance('brief-strategy')">✨ AI ENHANCE</span>
+                                </div>
+                                <textarea id="brief-strategy" placeholder="Enter rough notes here..."></textarea>
+                            </div>
+                        </div>
+
+                        <div id="sec-subpoena" class="doc-section">
+                            <div class="form-group"><label>Recipient (Party being served)</label><input type="text" id="sub-recipient"></div>
+                            <div class="form-group">
+                                <div class="flex-label">
+                                    <label>Items Demanded</label>
+                                    <span class="ai-btn" onclick="aiEnhance('sub-items')">✨ AI ENHANCE</span>
+                                </div>
+                                <textarea id="sub-items"></textarea>
+                            </div>
+                            <div class="form-group"><label>Compliance Deadline</label><input type="date" id="sub-date"></div>
+                        </div>
+
+                        <div id="sec-discovery" class="doc-section">
+                            <div class="form-group"><label>Opposing Agency / Counsel</label><input type="text" id="disc-prosecutor"></div>
+                            <div class="form-group">
+                                <div class="flex-label">
+                                    <label>Discovery Materials Requested</label>
+                                    <span class="ai-btn" onclick="aiEnhance('disc-materials')">✨ AI ENHANCE</span>
+                                </div>
+                                <textarea id="disc-materials"></textarea>
+                            </div>
+                            <div class="form-group"><label>Legal Grounds</label><input type="text" id="disc-grounds" value="Pursuant to standard discovery protocols and Brady v. Maryland"></div>
+                        </div>
+
+                        <div id="sec-civil-rights" class="doc-section">
+                            <div class="row-form">
+                                <div class="form-group"><label>Named Defendants</label><input type="text" id="cr-defendants" placeholder="Officer Chloe Quinn, Chief Daniel Navarro"></div>
+                                <div class="form-group"><label>Constitutional Violations</label><input type="text" id="cr-violations" placeholder="e.g. 4th Amendment, 14th Amendment"></div>
+                            </div>
+                            <div class="form-group">
+                                <div class="flex-label">
+                                    <label>Statement of Facts & Official Misconduct</label>
+                                    <span class="ai-btn" onclick="aiEnhance('cr-facts')">✨ AI ENHANCE</span>
+                                </div>
+                                <textarea id="cr-facts" style="min-height: 120px;" placeholder="Narrative of unprovoked force..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Immediate Demands / Relief Sought</label>
+                                <textarea id="cr-demands" placeholder="Termination, preservation of bodycam, monetary damages..."></textarea>
+                            </div>
+                        </div>
+
+                        <button class="btn" style="margin-top: 15px;" onclick="generateReport()">COMPILE LEGAL DOCUMENT</button>
+                    </div>
+                    <div id="report-output"></div>
+                </div>
+
+                <div id="client-roster" class="tab-content">
+                    <h1>Private Client Roster</h1>
+                    <div class="grid-panel">
+                        <div class="row-form">
+                            <div class="form-group"><label>Client Name</label><input type="text" id="client-name"></div>
+                            <div class="form-group"><label>Phone / Contact</label><input type="tel" id="client-phone"></div>
+                            <div class="form-group">
+                                <label>Case Type</label>
+                                <select id="client-casetype">
+                                    <option>Criminal Defense</option>
+                                    <option>Civil Plaintiff (Suing)</option>
+                                    <option>Civil Defendant (Sued)</option>
+                                    <option>Corporate Advisory</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row-form">
+                            <div class="form-group"><label>Charges / Claims / Matter</label><input type="text" id="client-charge"></div>
+                            <div class="form-group">
+                                <label>Case Status</label>
+                                <select id="client-status">
+                                    <option>Retainer Active</option>
+                                    <option>Pending Retainer</option>
+                                    <option>Awaiting Arraignment</option>
+                                    <option>Out on Bail</option>
+                                    <option>Remanded (Bolingbroke)</option>
+                                    <option>In Litigation (Civil)</option>
+                                    <option>Settlement Negotiations</option>
+                                    <option>Case Closed</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row-form" style="padding-top: 10px; border-top: 1px solid var(--border);">
+                            <div class="form-group">
+                                <label>Retainer Cost ($)</label>
+                                <input type="number" id="client-retainer" placeholder="5000">
+                            </div>
+                            <div class="form-group">
+                                <label>Fee per Case ($)</label>
+                                <input type="number" id="client-casefee" placeholder="7500">
+                            </div>
+                            <div class="form-group">
+                                <label>Payment Status</label>
+                                <select id="client-pay-status">
+                                    <option value="Unpaid">Unpaid</option>
+                                    <option value="Retainer Paid">Retainer Paid</option>
+                                    <option value="Paid in Full">Paid in Full</option>
+                                </select>
+                            </div>
+                            <div class="form-group" id="group-pay-date">
+                                <label>Next Pay Date (Optional)</label>
+                                <input type="date" id="client-pay-date">
+                            </div>
+                            <button class="btn" id="btn-add-client" onclick="addOrUpdateClient()">ADD TO DB</button>
+                        </div>
+                    </div>
+                    <table>
+                        <thead><tr><th>Name</th><th>Contact</th><th>Type</th><th>Matter</th><th>Status</th><th>Billing Tracker</th><th>Actions</th></tr></thead>
+                        <tbody id="roster-body"></tbody>
+                    </table>
+                </div>
+
+                <div id="court-docket" class="tab-content">
+                    <h1>Global Superior Court Docket</h1>
+                    <div class="grid-panel">
+                        <div class="row-form">
+                            <div class="form-group"><label>Date</label><input type="date" id="docket-date"></div>
+                            <div class="form-group"><label>Case Title</label><input type="text" id="docket-case" placeholder="State v. Doe"></div>
+                            <div class="form-group">
+                                <label>Proceeding</label>
+                                <select id="docket-type">
+                                    <option>Bail Hearing</option>
+                                    <option>Arraignment</option>
+                                    <option>Pre-Trial Conference</option>
+                                    <option>Motion Hearing</option>
+                                    <option>Trial Proceeding</option>
+                                    <option>Sentencing</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Status</label>
+                                <select id="docket-status">
+                                    <option>Scheduled</option>
+                                    <option>Continued</option>
+                                    <option>Case Closed</option>
+                                </select>
+                            </div>
+                            <button class="btn" id="btn-add-docket" onclick="addOrUpdateDocket()">SCHEDULE</button>
+                        </div>
+                    </div>
+                    <table>
+                        <thead><tr><th>Date</th><th>Case Title</th><th>Type</th><th>Status</th><th>Posted By</th><th>Actions</th></tr></thead>
+                        <tbody id="docket-body"></tbody>
+                    </table>
+                </div>
+
+                <div id="legal-ref" class="tab-content">
+                    <h1>Federal Legal Reference Library</h1>
+                    <div class="law-container">
+                        <div class="law-col">
+                            <div class="law-header">The U.S. Constitution (Indexed)</div>
+                            <div class="law-scroll">
+                                <div class="law-category">Articles of the Constitution</div>
+                                <div class="law-card"><h3>Article I - III <span>(Branches of Gov)</span></h3><p>Establishes the Legislative (Congress), Executive (Presidency), and Judicial (Federal Courts) branches, defining their separate powers and checks on one another.</p></div>
+                                <div class="law-card"><h3>Article IV - VII <span>(States & Ratification)</span></h3><p>Outlines the duties states have to each other, the amendment process (V), establishes the Constitution as the Supreme Law of the Land (VI), and covers ratification (VII).</p></div>
+                                <div class="law-category">The Bill of Rights</div>
+                                <div class="law-card"><h3>First Amendment</h3><p>Protects freedom of religion, speech, press, assembly, and the right to petition the government.</p></div>
+                                <div class="law-card"><h3>Second Amendment</h3><p>Protects the right of the people to keep and bear arms.</p></div>
+                                <div class="law-card"><h3>Fourth Amendment</h3><p>Protects against unreasonable searches and seizures. Requires warrants to be judicially sanctioned and supported by probable cause.</p><p class="quote">"The right of the people to be secure in their persons, houses, papers, and effects... shall not be violated."</p></div>
+                                <div class="law-card"><h3>Fifth Amendment</h3><p>Guarantees due process, protects against self-incrimination ("pleading the fifth"), prohibits double jeopardy, and requires a grand jury for capital crimes.</p></div>
+                                <div class="law-card"><h3>Sixth Amendment</h3><p>Guarantees the right to a speedy and public trial by an impartial jury, the right to confront accusers, and the right to legal counsel.</p></div>
+                                <div class="law-card"><h3>Eighth Amendment</h3><p>Prohibits excessive bail, excessive fines, and cruel and unusual punishments.</p></div>
+                                <div class="law-category">Further Amendments</div>
+                                <div class="law-card"><h3>Fourteenth Amendment</h3><p>Grants citizenship to all born or naturalized in the US. The <strong>Equal Protection Clause</strong> and <strong>Due Process Clause</strong> apply constitutional rights to the state/local level.</p></div>
+                            </div>
+                        </div>
+
+                        <div class="law-col">
+                            <div class="law-header">Federal Case Law Precedents</div>
+                            <div class="law-scroll">
+                                <div class="law-category">Search, Seizure & Vehicle Stops</div>
+                                <div class="law-card">
+                                    <h3><span class="case-title">Terry v. Ohio (1968)</span></h3>
+                                    <p>Allows police to briefly detain a person based on <strong>reasonable suspicion</strong> of involvement in criminal activity. Officers may conduct a limited "frisk" of outer clothing for weapons if they reasonably believe the suspect is armed and dangerous.</p>
+                                </div>
+                                <div class="law-card">
+                                    <h3><span class="case-title">Carroll v. United States (1925)</span></h3>
+                                    <p>Established the "Motor Vehicle Exception." Police may search a vehicle without a warrant if they have probable cause to believe it contains contraband or evidence, due to the vehicle's mobility.</p>
+                                </div>
+                                <div class="law-category">Interrogation & Counsel</div>
+                                <div class="law-card">
+                                    <h3><span class="case-title">Miranda v. Arizona (1966)</span></h3>
+                                    <p>Criminal suspects in police custody must be informed of their constitutional right to an attorney and against self-incrimination before police questioning.</p>
+                                </div>
+                                <div class="law-category">Use of Force & Medical Aid</div>
+                                <div class="law-card">
+                                    <h3><span class="case-title">Graham v. Connor (1989)</span></h3>
+                                    <p>Established the "objective reasonableness" standard. Force must be judged from the perspective of a reasonable officer on the scene.</p>
+                                </div>
+                                <div class="law-card">
+                                    <h3><span class="case-title">Tennessee v. Garner (1985)</span></h3>
+                                    <p>Lethal force may not be used to prevent the escape of a fleeing suspect <strong>unless</strong> the officer has probable cause to believe the suspect poses a significant threat of death or serious physical injury to the officer or others.</p>
+                                </div>
+                                <div class="law-card">
+                                    <h3><span class="case-title">City of Revere v. Mass. General Hospital (1983)</span></h3>
+                                    <p>The Due Process Clause of the 14th Amendment requires the responsible government agency to provide medical care to persons who have been injured while being apprehended by the police.</p>
+                                </div>
+                                <div class="law-category">Discovery & Municipal Liability</div>
+                                <div class="law-card">
+                                    <h3><span class="case-title">Brady v. Maryland (1963)</span></h3>
+                                    <p>The prosecution must turn over all exculpatory evidence (evidence that might exonerate the defendant) to the defense. Withholding such evidence violates due process.</p>
+                                </div>
+                                <div class="law-card" style="border-color: var(--error);">
+                                    <h3 style="color: var(--error);"><span class="case-title">Monell v. Dept. of Social Services (1978)</span></h3>
+                                    <p>Allows a municipality (City/Police Dept) to be sued under 42 U.S.C. § 1983 if an unconstitutional action implements or executes a policy statement, ordinance, regulation, or a tolerated "custom" of misconduct.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- AUDIO ENGINE ---
+        let audioCtx;
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+        function playSound(type) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            const now = audioCtx.currentTime;
+            if (type === 'type') {
+                osc.type = 'square'; osc.frequency.setValueAtTime(600 + Math.random()*300, now);
+                gain.gain.setValueAtTime(0.01, now); osc.start(now); osc.stop(now + 0.02);
+            } else if (type === 'click') {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(800, now);
+                gain.gain.setValueAtTime(0.03, now); osc.start(now); osc.stop(now + 0.05);
+            } else if (type === 'success') {
+                osc.type = 'square'; osc.frequency.setValueAtTime(400, now); osc.frequency.setValueAtTime(800, now + 0.1);
+                gain.gain.setValueAtTime(0.05, now); osc.start(now); osc.stop(now + 0.3);
+            } else if (type === 'error') {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(200, now); osc.frequency.setValueAtTime(150, now + 0.1);
+                gain.gain.setValueAtTime(0.05, now); osc.start(now); osc.stop(now + 0.3);
+            }
+        }
+
+        // --- DATABASE / LOCAL STORAGE LOGIC ---
+        let currentUser = null;
+        let isWeaverUser = false;
+        let editingClientId = null;
+        let editingDocketId = null;
+        
+        if (!localStorage.getItem('kyntra_users')) localStorage.setItem('kyntra_users', JSON.stringify({}));
+        if (!localStorage.getItem('kyntra_clients')) localStorage.setItem('kyntra_clients', JSON.stringify({}));
+        if (!localStorage.getItem('kyntra_docket')) localStorage.setItem('kyntra_docket', JSON.stringify([]));
+
+        // --- AUTH LOGIC ---
+        function toggleAuthMode() {
+            playSound('click');
+            const loginBox = document.getElementById('login-box');
+            const regBox = document.getElementById('register-box');
+            if(loginBox.style.display === 'none') {
+                loginBox.style.display = 'block'; regBox.style.display = 'none';
+            } else {
+                loginBox.style.display = 'none'; regBox.style.display = 'block';
+            }
+        }
+
+        function attemptAuth(mode) {
+            initAudio();
+            const usersDB = JSON.parse(localStorage.getItem('kyntra_users'));
+            const clientDB = JSON.parse(localStorage.getItem('kyntra_clients'));
+
+            if (mode === 'register') {
+                const user = document.getElementById('reg-user').value.trim().toLowerCase();
+                const pass = document.getElementById('reg-pass').value.trim();
+                const isWeaver = document.getElementById('reg-weaver').checked;
+
+                if(!user || !pass) return alert("Fields cannot be empty.");
+                if(usersDB[user]) { playSound('error'); return alert("Username already registered in DB."); }
+                
+                usersDB[user] = { password: pass, isWeaver: isWeaver };
+                clientDB[user] = []; 
+                
+                localStorage.setItem('kyntra_users', JSON.stringify(usersDB));
+                localStorage.setItem('kyntra_clients', JSON.stringify(clientDB));
+                
+                playSound('success');
+                alert("Profile initialized. Please login.");
+                toggleAuthMode();
+                document.getElementById('reg-user').value = ''; document.getElementById('reg-pass').value = '';
+                document.getElementById('reg-weaver').checked = false;
+            } 
+            else if (mode === 'login') {
+                const user = document.getElementById('login-user').value.trim().toLowerCase();
+                const pass = document.getElementById('login-pass').value.trim();
+                
+                const userData = usersDB[user];
+                if(!userData) { playSound('error'); return alert("Invalid Credentials or Profile not found."); }
+
+                const storedPass = typeof userData === 'string' ? userData : userData.password;
+                const userIsWeaver = typeof userData === 'object' ? userData.isWeaver : false;
+
+                if(storedPass === pass) {
+                    currentUser = user;
+                    isWeaverUser = userIsWeaver;
+                    playSound('success');
+                    
+                    document.getElementById('user-display').textContent = `COUNSEL: ${user.toUpperCase()}`;
+                    applyTheme();
+
+                    document.getElementById('auth-screen').style.opacity = '0';
+                    setTimeout(() => {
+                        document.getElementById('auth-screen').style.display = 'none';
+                        startBootSequence();
+                    }, 800);
+                } else {
+                    playSound('error');
+                    alert("Invalid Credentials.");
+                }
+            }
+        }
+
+        function applyTheme() {
+            if (isWeaverUser) {
+                document.body.classList.add('weaver-theme');
+                document.getElementById('sys-title').innerText = "[ WEAVER LEGAL GROUP ]";
+                document.getElementById('page-title').innerText = "Weaver Legal Group | DB";
+                document.getElementById('btn-upgrade-firm').style.display = 'none';
+            } else {
+                document.body.classList.remove('weaver-theme');
+                document.getElementById('sys-title').innerText = "[ KYNTRA OS 1.2 ]";
+                document.getElementById('page-title').innerText = "SA Public Defender | DB";
+                document.getElementById('btn-upgrade-firm').style.display = 'block';
+            }
+        }
+
+        function toggleFirmStatus() {
+            playSound('success');
+            let usersDB = JSON.parse(localStorage.getItem('kyntra_users'));
+            let userData = usersDB[currentUser];
+            
+            if(typeof userData === 'string') {
+                usersDB[currentUser] = { password: userData, isWeaver: true };
+            } else {
+                usersDB[currentUser].isWeaver = true;
+            }
+            
+            localStorage.setItem('kyntra_users', JSON.stringify(usersDB));
+            isWeaverUser = true;
+            applyTheme();
+            alert("Account officially migrated to Weaver Legal Group. Theme updated.");
+        }
+
+        function logout() {
+            playSound('error');
+            setTimeout(() => { location.reload(); }, 300);
+        }
+
+        // --- BOOT SEQUENCE ---
+        async function typeText(element, text, delay) {
+            return new Promise(resolve => {
+                let i = 0;
+                function type() {
+                    if (i < text.length) {
+                        element.innerHTML += text.charAt(i); playSound('type');
+                        i++; setTimeout(type, delay);
+                    } else {
+                        element.innerHTML += "<br>"; resolve();
+                    }
+                }
+                type();
+            });
+        }
+
+        async function startBootSequence() {
+            const bootScreen = document.getElementById('boot-screen');
+            const bootText = document.getElementById('boot-text');
+            bootScreen.style.display = 'flex';
+
+            const networkName = isWeaverUser ? "WEAVER LEGAL GROUP NETWORK" : "PUBLIC DEFENDER NETWORK";
+
+            const lines = [
+                "DECRYPTING SECURE PROFILE...",
+                `ESTABLISHING LINK TO ${networkName}... [OK]`,
+                `FETCHING PRIVATE CLIENT ROSTER FOR [${currentUser.toUpperCase()}]... [OK]`,
+                "SYNCING WITH GLOBAL COURT DOCKET... [OK]",
+                "LOADING SECURE WORKSPACE..."
+            ];
+            for (let line of lines) { await typeText(bootText, line, 20); await new Promise(r => setTimeout(r, 200)); }
+
+            setTimeout(() => {
+                bootScreen.style.opacity = '0';
+                setTimeout(() => {
+                    bootScreen.style.display = 'none';
+                    document.getElementById('main-ui').style.display = 'block';
+                    loadDatabaseToUI(); 
+                    playSound('success');
+                }, 800);
+            }, 500);
+        }
+
+        // --- UI CLOCK & TABS ---
+        setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString('en-US', {hour12: false}); }, 1000);
+
+        function openTab(tabId) {
+            playSound('click');
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        function updateFormDisplay() {
+            const type = document.getElementById('doc-type').value;
+            document.querySelectorAll('.doc-section').forEach(s => s.classList.remove('active'));
+            document.getElementById('sec-' + type).classList.add('active');
+        }
+
+        // --- DATA RENDERING & SAVING ---
+        function loadDatabaseToUI() {
+            renderRoster();
+            renderDocket();
+        }
+
+        // CLIENT ROSTER (PRIVATE)
+        function addOrUpdateClient() {
+            const name = document.getElementById('client-name').value;
+            const phone = document.getElementById('client-phone').value || "N/A";
+            const type = document.getElementById('client-casetype').value;
+            const charge = document.getElementById('client-charge').value || "TBD";
+            const status = document.getElementById('client-status').value;
+            
+            const retainer = document.getElementById('client-retainer').value;
+            const caseFee = document.getElementById('client-casefee').value;
+            const payStatus = document.getElementById('client-pay-status').value;
+            const payDate = document.getElementById('client-pay-date').value;
+
+            if (!name) return;
+
+            let clientDB = JSON.parse(localStorage.getItem('kyntra_clients'));
+
+            if (editingClientId) {
+                const index = clientDB[currentUser].findIndex(c => c.id === editingClientId);
+                if(index !== -1) {
+                    clientDB[currentUser][index] = { id: editingClientId, name, phone, type, charge, status, retainer, caseFee, payStatus, payDate };
+                }
+                editingClientId = null;
+                const btn = document.getElementById('btn-add-client');
+                btn.innerText = "ADD TO DB";
+                btn.classList.remove('btn-editing');
+            } else {
+                const newClient = { id: Date.now(), name, phone, type, charge, status, retainer, caseFee, payStatus, payDate };
+                clientDB[currentUser].push(newClient);
+            }
+            
+            localStorage.setItem('kyntra_clients', JSON.stringify(clientDB));
+            playSound('click');
+            renderRoster();
+            
+            document.getElementById('client-name').value = ''; 
+            document.getElementById('client-phone').value = ''; 
+            document.getElementById('client-charge').value = '';
+            document.getElementById('client-pay-date').value = '';
+        }
+
+        function prepareEditClient(id) {
+            playSound('click');
+            const clientDB = JSON.parse(localStorage.getItem('kyntra_clients'));
+            const client = clientDB[currentUser].find(c => c.id === id);
+            if(!client) return;
+
+            document.getElementById('client-name').value = client.name;
+            document.getElementById('client-phone').value = client.phone;
+            document.getElementById('client-casetype').value = client.type;
+            document.getElementById('client-charge').value = client.charge;
+            document.getElementById('client-status').value = client.status;
+            
+            document.getElementById('client-retainer').value = client.retainer || "";
+            document.getElementById('client-casefee').value = client.caseFee || "";
+            document.getElementById('client-pay-status').value = client.payStatus || "Unpaid";
+            document.getElementById('client-pay-date').value = client.payDate || "";
+
+            editingClientId = id;
+            const btn = document.getElementById('btn-add-client');
+            btn.innerText = "SAVE EDITS";
+            btn.classList.add('btn-editing');
+            
+            document.getElementById('client-roster').scrollIntoView({behavior: "smooth"});
+        }
+
+        function deleteClient(id) {
+            playSound('click');
+            const clientDB = JSON.parse(localStorage.getItem('kyntra_clients'));
+            clientDB[currentUser] = clientDB[currentUser].filter(c => c.id !== id);
+            localStorage.setItem('kyntra_clients', JSON.stringify(clientDB));
+            renderRoster();
+        }
+
+        function renderRoster() {
+            const clientDB = JSON.parse(localStorage.getItem('kyntra_clients'));
+            let myClients = [...(clientDB[currentUser] || [])];
+            myClients.sort((a, b) => b.id - a.id); // Highest ID (newest) at the top
+
+            const tbody = document.getElementById('roster-body');
+            tbody.innerHTML = '';
+
+            myClients.forEach(c => {
+                const isClosed = c.status === 'Case Closed';
+                const rowClass = isClosed ? 'status-closed' : '';
+                const statColor = isClosed ? 'var(--text-muted)' : 'var(--accent)';
+                
+                let retText = c.retainer ? `$${c.retainer}` : 'N/A';
+                let feeText = c.caseFee ? `$${c.caseFee}` : 'N/A';
+                let dateText = c.payDate ? `(Due: ${c.payDate})` : '';
+
+                let billingHtml = `
+                    <span style="color:var(--text-muted); font-size: 0.8rem;">Retainer: ${retText} | Fee: ${feeText}</span><br>
+                    <span style="color:var(--accent); font-size: 0.85rem;">${c.payStatus} ${dateText}</span>
+                `;
+
+                tbody.innerHTML += `
+                    <tr class="${rowClass}">
+                        <td>${c.name}</td><td>${c.phone}</td><td style="color:var(--text-muted)">${c.type}</td>
+                        <td>${c.charge}</td><td style="color:${statColor}">${c.status}</td>
+                        <td>${billingHtml}</td>
+                        <td style="display:flex; gap:5px;">
+                            <button class="btn btn-outline" style="padding:5px 10px; font-size:0.75rem;" onclick="prepareEditClient(${c.id})">EDIT</button>
+                            <button class="btn btn-danger" style="padding:5px 10px; font-size:0.75rem;" onclick="deleteClient(${c.id})">WIPE</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // COURT DOCKET (SHARED)
+        function addOrUpdateDocket() {
+            const date = document.getElementById('docket-date').value;
+            const caseName = document.getElementById('docket-case').value;
+            const type = document.getElementById('docket-type').value;
+            const status = document.getElementById('docket-status').value;
+            if (!date || !caseName) return;
+
+            let docketDB = JSON.parse(localStorage.getItem('kyntra_docket'));
+
+            if(editingDocketId) {
+                const index = docketDB.findIndex(d => d.id === editingDocketId);
+                if(index !== -1) {
+                    docketDB[index] = { id: editingDocketId, date, caseName, type, status, postedBy: currentUser };
+                }
+                editingDocketId = null;
+                const btn = document.getElementById('btn-add-docket');
+                btn.innerText = "SCHEDULE";
+                btn.classList.remove('btn-editing');
+            } else {
+                const newDocket = { id: Date.now(), date, caseName, type, status, postedBy: currentUser };
+                docketDB.push(newDocket);
+            }
+            
+            localStorage.setItem('kyntra_docket', JSON.stringify(docketDB));
+            playSound('click');
+            renderDocket();
+            document.getElementById('docket-case').value = '';
+        }
+
+        function prepareEditDocket(id) {
+            playSound('click');
+            const docketDB = JSON.parse(localStorage.getItem('kyntra_docket'));
+            const doc = docketDB.find(d => d.id === id);
+            if(!doc) return;
+
+            document.getElementById('docket-date').value = doc.date;
+            document.getElementById('docket-case').value = doc.caseName;
+            document.getElementById('docket-type').value = doc.type;
+            document.getElementById('docket-status').value = doc.status;
+
+            editingDocketId = id;
+            const btn = document.getElementById('btn-add-docket');
+            btn.innerText = "UPDATE SCHEDULE";
+            btn.classList.add('btn-editing');
+
+            document.getElementById('court-docket').scrollIntoView({behavior: "smooth"});
+        }
+
+        function deleteDocket(id) {
+            playSound('click');
+            let docketDB = JSON.parse(localStorage.getItem('kyntra_docket'));
+            docketDB = docketDB.filter(d => d.id !== id);
+            localStorage.setItem('kyntra_docket', JSON.stringify(docketDB));
+            renderDocket();
+        }
+
+        function renderDocket() {
+            const docketDB = JSON.parse(localStorage.getItem('kyntra_docket'));
+            docketDB.sort((a, b) => a.date.localeCompare(b.date));
+            const tbody = document.getElementById('docket-body');
+            tbody.innerHTML = '';
+
+            docketDB.forEach(d => {
+                const isClosed = d.status === 'Case Closed';
+                const rowClass = isClosed ? 'status-closed' : '';
+                const statColor = isClosed ? 'var(--text-muted)' : 'var(--success)';
+                
+                const isOwner = d.postedBy === currentUser;
+                const actionsHtml = isOwner ? `
+                    <div style="display:flex; gap:5px;">
+                        <button class="btn btn-outline" style="padding:5px 10px; font-size:0.75rem;" onclick="prepareEditDocket(${d.id})">EDIT</button>
+                        <button class="btn btn-outline" style="padding:5px 10px; font-size:0.75rem; border-color:var(--error); color:var(--error);" onclick="deleteDocket(${d.id})">STRIKE</button>
+                    </div>
+                ` : `<span style="color:var(--text-muted); font-size:0.8rem;">RESTRICTED</span>`;
+
+                tbody.innerHTML += `
+                    <tr class="${rowClass}">
+                        <td>${d.date}</td><td>${d.caseName}</td><td>${d.type}</td>
+                        <td style="color:${statColor}">${d.status}</td>
+                        <td style="color:var(--text-muted); font-size:0.8rem;">${d.postedBy.toUpperCase()}</td>
+                        <td>${actionsHtml}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // --- AI ENHANCE NLP SIMULATION ---
+        function aiEnhance(targetId) {
+            playSound('type');
+            const el = document.getElementById(targetId);
+            let text = el.value.trim();
+            if(!text) return alert("System Error: No text input detected to enhance.");
+            
+            const originalColor = el.style.color;
+            el.style.color = "var(--success)";
+            el.value = "/// INITIATING KYNTRA NLP PARSER...\n/// RESTRUCTURING FOR COURTROOM ADMISSIBILITY...";
+
+            setTimeout(() => {
+                text = text.replace(/(^\w|\.\s+\w)/gm, s => s.toUpperCase());
+                if (!/[.!?]$/.test(text)) text += ".";
+                
+                const dictionary = {
+                    "\\bcops?\\b": "LSPD Personnel",
+                    "\\bshoot\\b": "discharge a firearm",
+                    "\\bshot\\b": "discharged a firearm at",
+                    "\\bgun\\b": "lethal weapon/firearm",
+                    "\\bbeat up\\b": "subjected to unjustified physical force",
+                    "\\bmad\\b": "distressed",
+                    "\\bfake\\b": "fraudulent",
+                    "\\bbroke into\\b": "unlawfully entered",
+                    "\\bleft them\\b": "failed to render necessary medical aid",
+                    "\\bthreatened\\b": "engaged in unlawful intimidation",
+                    "\\bsaid\\b": "testified/stated on record"
+                };
+                
+                for (const [key, val] of Object.entries(dictionary)) {
+                    text = text.replace(new RegExp(key, "gi"), val);
+                }
+                
+                el.style.color = originalColor;
+                el.value = text;
+                playSound('success');
+            }, 1500);
+        }
+
+        // --- DOCUMENT GENERATOR ---
+        function generateReport() {
+            playSound('success');
+            const type = document.getElementById('doc-type').value;
+            const defendant = document.getElementById('global-defendant').value || "[CLIENT/DEFENDANT NAME]";
+            const caseNo = document.getElementById('global-case').value || "[CASE NUMBER]";
+            let docText = "";
+
+            const firmTitle = isWeaverUser ? "WEAVER LEGAL GROUP\nLos Santos, San Andreas" : "OFFICE OF THE PUBLIC DEFENDER\nLos Santos, San Andreas";
+
+            if (type === 'retainer') {
+                const scope = document.getElementById('ret-scope').value || "[SCOPE OF REPRESENTATION]";
+                const retAmount = document.getElementById('ret-amount').value || "5000";
+                const feeAmount = document.getElementById('ret-case-fee').value || "7500";
+                
+                docText = `${firmTitle}\n======================================================\nLEGAL REPRESENTATION & RETAINER AGREEMENT\n======================================================\nCLIENT: ${defendant.toUpperCase()}\nDATE: ${new Date().toLocaleDateString()}\n------------------------------------------------------\n1. SCOPE OF REPRESENTATION\nClient retains Firm to provide legal services in the following matter:\n${scope}\n\n2. LEGAL FEES & RETAINER\nClient agrees to pay a non-refundable upfront retainer fee of $${retAmount} to secure representation.\n\nIn addition to the initial retainer, the Firm operates on a flat-fee basis of $${feeAmount} for the defined case/matter. All standard legal services, court appearances, and consultations are covered by this fee structure. The Firm does not bill at an hourly rate.\n\n3. TERMINATION\nEither party may terminate this agreement at any time, subject to Court approval if active litigation is ongoing.\n\n____________________________\n${currentUser.toUpperCase()}, ESQ.\n\n____________________________\n${defendant.toUpperCase()}`;
+
+            } else if (type === 'representation') {
+                const repTo = document.getElementById('rep-to').value || "[OPPOSING COUNSEL / AGENCY]";
+                const demands = document.getElementById('rep-demands').value || "[DIRECTIVES]";
+                
+                docText = `${firmTitle}\n------------------------------------------------------\nTO: ${repTo.toUpperCase()}\nFROM: ${currentUser.toUpperCase()}, ESQ.\nDATE: ${new Date().toLocaleDateString()}\n\nRE: LETTER OF REPRESENTATION - ${defendant.toUpperCase()}\nCASE NO: ${caseNo}\n------------------------------------------------------\nPlease be advised that our firm has been retained to formally represent ${defendant.toUpperCase()} regarding the above-referenced matter.\n\nEffective immediately, you are hereby directed to cease any and all direct communication with our client. All further inquiries, correspondence, or service of process must be directed exclusively through our office.\n\nFurthermore, we demand the following:\n${demands}\n\nGovern yourselves accordingly.\n\nSigned,\n${currentUser.toUpperCase()}, ESQ.`;
+
+            } else if (type === 'cease') {
+                const target = document.getElementById('cd-target').value || "[OFFENDING PARTY]";
+                const conduct = document.getElementById('cd-conduct').value || "[CONDUCT]";
+                const date = document.getElementById('cd-date').value || "[DATE]";
+
+                docText = `${firmTitle}\n------------------------------------------------------\nCEASE AND DESIST DEMAND\nVIA CERTIFIED DELIVERY\n------------------------------------------------------\nTO: ${target.toUpperCase()}\nFROM: ${currentUser.toUpperCase()}, ESQ.\nDATE: ${new Date().toLocaleDateString()}\n\nRE: UNLAWFUL CONDUCT AGAINST ${defendant.toUpperCase()}\n\nIt has come to our attention that you have engaged in the following unlawful/infringing conduct:\n\n${conduct}\n\nDEMAND FOR COMPLIANCE\nYou are hereby directed to immediately CEASE AND DESIST all aforementioned activities. \n\nShould you fail to comply by ${date}, our office is prepared to pursue all available legal remedies, including but not limited to filing for an emergency injunction and seeking maximum monetary damages.\n\nGovern yourselves accordingly.\n\nSigned,\n${currentUser.toUpperCase()}, ESQ.`;
+
+            } else if (type === 'brief') {
+                docText = `======================================================\nATTORNEY-CLIENT WORK PRODUCT | HIGHLY CONFIDENTIAL\n======================================================\nPREPARED BY: ${currentUser.toUpperCase()}, ESQ.\nFIRM: ${isWeaverUser ? "Weaver Legal Group" : "Public Defender"}\nCLIENT: ${defendant.toUpperCase()}\nCASE NO: ${caseNo}\nCHARGES / CLAIMS: ${document.getElementById('brief-charges').value || "N/A"}\n------------------------------------------------------\nCASE STRATEGY & NOTES:\n${document.getElementById('brief-strategy').value || "N/A"}\n======================================================\nDO NOT DISTRIBUTE - PROTECTED BY PRIVILEGE`;
+            
+            } else if (type === 'subpoena') {
+                docText = `SUPERIOR COURT OF SAN ANDREAS\nCOUNTY OF LOS SANTOS\n------------------------------------------------------\nIN RE THE MATTER OF:\n${defendant.toUpperCase()}\n\nSUBPOENA DUCES TECUM\nCASE NO: ${caseNo}\n------------------------------------------------------\nTO: ${(document.getElementById('sub-recipient').value || "[RECIPIENT]").toUpperCase()}\n\nYOU ARE HEREBY COMMANDED by the Superior Court to produce the following records, documents, or evidence:\n\n${document.getElementById('sub-items').value || "N/A"}\n\nCOMPLIANCE DEADLINE: ${document.getElementById('sub-date').value || "TBD"}\n\nFailure to comply with this subpoena may result in contempt of court.\n\nSUBMITTED BY: ${currentUser.toUpperCase()}, ESQ.\n${isWeaverUser ? "WEAVER LEGAL GROUP" : "PUBLIC DEFENDER"}`;
+            
+            } else if (type === 'discovery') {
+                docText = `SUPERIOR COURT OF SAN ANDREAS\nCOUNTY OF LOS SANTOS\n------------------------------------------------------\nIN RE THE MATTER OF:\n${defendant.toUpperCase()}\n\nFORMAL MOTION FOR DISCOVERY\nCASE NO: ${caseNo}\n------------------------------------------------------\nCOMES NOW the filing party, by and through their attorney, ${currentUser.toUpperCase()}, Esq., and respectfully requests the Court to order ${document.getElementById('disc-prosecutor').value || "[AGENCY]"} to produce the following evidence for inspection and copying:\n\n${document.getElementById('disc-materials').value || "N/A"}\n\nLEGAL GROUNDS:\n${document.getElementById('disc-grounds').value || "N/A"}\n\nSUBMITTED BY: ${currentUser.toUpperCase()}, ESQ.`;
+            
+            } else if (type === 'civil-rights') {
+                const defendants = document.getElementById('cr-defendants').value || "[NAMED DEFENDANTS]";
+                const violations = document.getElementById('cr-violations').value || "[VIOLATIONS]";
+                const facts = document.getElementById('cr-facts').value || "[STATEMENT OF FACTS]";
+                const demands = document.getElementById('cr-demands').value || "[DEMANDS]";
+
+                docText = `${firmTitle}\n------------------------------------------------------\nTO: Office of the Mayor; City Attorney\nFROM: ${currentUser.toUpperCase()}, ESQ.\nDATE: ${new Date().toLocaleDateString()}\n\nSUBJECT: FORMAL COMPLAINT & NOTICE OF INTENT (42 U.S.C. § 1983)\n\nCLIENT: ${defendant.toUpperCase()}\nDEFENDANTS: ${defendants.toUpperCase()}\nCONSTITUTIONAL VIOLATIONS CLAIMED: ${violations}\n------------------------------------------------------\nI. STATEMENT OF FACTS & OFFICIAL MISCONDUCT\n\n${facts}\n\n------------------------------------------------------\nII. IMMEDIATE DEMANDS / RELIEF SOUGHT\n\n${demands}\n\nFailure to execute these demands will result in the immediate filing of a Section 1983 civil rights lawsuit in federal court.\n\nSigned,\n${currentUser.toUpperCase()}, ESQ.`;
+            }
+
+            const outputDiv = document.getElementById('report-output');
+            outputDiv.textContent = docText;
+            outputDiv.style.display = "block";
+            outputDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
